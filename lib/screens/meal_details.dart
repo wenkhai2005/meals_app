@@ -16,10 +16,14 @@ class MealDetailsScreen extends ConsumerWidget {
     final favoriteMeals = ref.watch(favoriteMealsProvider);
 
     final isFavorite = favoriteMeals.contains(meal);
-    const normalStar = Icon(Icons.star);
-    const yellowStar = Icon(
+    final normalStar = Icon(
+      Icons.star,
+      key: ValueKey(isFavorite),
+    );
+    final yellowStar = Icon(
       Icons.star,
       color: Colors.amber,
+      key: ValueKey(isFavorite),
     );
 
     return Scaffold(
@@ -39,18 +43,30 @@ class MealDetailsScreen extends ConsumerWidget {
                 ),
               );
             },
-            icon: isFavorite ? yellowStar : normalStar,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return RotationTransition(
+                  turns: Tween(begin: 0.8, end: 1.0).animate(animation),
+                  child: child,
+                );
+              },
+              child: (isFavorite ? yellowStar : normalStar),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Image.network(
-              meal.imageUrl,
-              width: double.infinity,
-              height: 300,
-              fit: BoxFit.cover,
+            Hero(
+              tag: meal.id,
+              child: Image.network(
+                meal.imageUrl,
+                width: double.infinity,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(
               height: 16,
@@ -58,7 +74,7 @@ class MealDetailsScreen extends ConsumerWidget {
             Text(
               'Ingredients',
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(
@@ -67,8 +83,10 @@ class MealDetailsScreen extends ConsumerWidget {
             for (final item in meal.ingredients)
               Text(
                 item,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge!
+                    .copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
             const SizedBox(
               height: 14,
@@ -76,7 +94,7 @@ class MealDetailsScreen extends ConsumerWidget {
             Text(
               'Steps',
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold),
             ),
             for (final step in meal.steps)
